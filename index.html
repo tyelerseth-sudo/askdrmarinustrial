@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>Dr. Leerand Hippocratus Marinus</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=Cinzel:wght@400;600&family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet" />
+  <style>
+    /* ── Reset ── */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    /* ── Palette ── */
+    :root {
+      --vellum:    #F2E8D0;
+      --vellum-dk: #E4D5B0;
+      --vellum-lt: #FAF4E6;
+      --ink:       #1C1410;
+      --ink-faded: #4A3C2E;
+      --wax:       #8B1A1A;
+      --wax-lt:    #A52020;
+      --rust:      #6B3A1F;
+      --mold:      #3D4A2E;
+      --gold-old:  #8B7340;
+      --border:    #C4A96A;
+      --shadow:    rgba(28,20,16,0.25);
+      --fell:      'IM Fell English', serif;
+      --cinzel:    'Cinzel', serif;
+      --garamond:  'EB Garamond', serif;
+    }
+
+    /* ── Noise texture overlay (pure CSS) ── */
+    @keyframes noise {
+      0%   { background-position: 0 0; }
+      100% { background-position: 100% 100%; }
+    }
+
+    /* ── Page ── */
+    html { height: 100%; background: transparent; }
+    body {
+      min-height: 100%;
+      background: transparent;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 16px;
+      font-family: var(--garamond);
+    }
+
+    /* ── Card ── */
+    .card {
+      width: 100%;
+      max-width: 680px;
+      background: var(--vellum);
+      border: 2px solid var(--border);
+      border-radius: 16px;
+      box-shadow:
+        0 0 0 1px rgba(139,115,64,0.2),
+        0 6px 32px var(--shadow),
+        inset 0 0 80px rgba(180,150,90,0.08);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      position: relative;
+    }
+
+    /* Aged paper texture via pseudo-element */
+    .card::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      background-image:
+        repeating-linear-gradient(
+          0deg,
+          transparent,
+          transparent 28px,
+          rgba(139,115,64,0.04) 28px,
+          rgba(139,115,64,0.04) 29px
+        );
+      border-radius: 2px;
+    }
+
+    /* ── Illuminated header bar ── */
+    .gradient-bar {
+      height: 10px;
+      background: repeating-linear-gradient(
+        90deg,
+        #D6E8F0 0px,
+        #D6E8F0 14px,
+        #E8DFB0 14px,
+        #E8DFB0 28px,
+        #B8CDB8 28px,
+        #B8CDB8 42px,
+        #E8DFB0 42px,
+        #E8DFB0 56px,
+        #D6E8F0 56px,
+        #D6E8F0 70px,
+        #E8DFB0 70px,
+        #E8DFB0 84px,
+        #B8CDB8 84px,
+        #B8CDB8 98px,
+        #E8DFB0 98px,
+        #E8DFB0 112px,
+        #D6E8F0 112px,
+        #D6E8F0 126px,
+        #E8DFB0 126px,
+        #E8DFB0 140px,
+        #B8CDB8 140px,
+        #B8CDB8 154px,
+        #E8DFB0 154px,
+        #E8DFB0 168px
+      );
+      flex-shrink: 0;
+      position: relative;
+      z-index: 1;
+      box-shadow: 0 1px 0 rgba(139,115,64,0.3);
+    }
+
+    /* ── Header ── */
+    .header {
+      padding: 14px 20px 13px;
+      border-bottom: 1px solid var(--border);
+      text-align: center;
+      position: relative;
+      z-index: 1;
+      background: linear-gradient(180deg, rgba(242,232,208,0) 0%, rgba(228,213,176,0.3) 100%);
+    }
+
+    .dr-name {
+      font-family: var(--cinzel);
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--ink);
+      letter-spacing: 0.06em;
+      line-height: 1.25;
+      margin-bottom: 5px;
+      text-shadow: 0 1px 0 rgba(255,255,255,0.4);
+    }
+
+    .tagline {
+      font-family: var(--fell);
+      font-style: italic;
+      font-size: 9px;
+      color: var(--ink-faded);
+      letter-spacing: 0.01em;
+      opacity: 0.85;
+    }
+
+    /* ── Chat area ── */
+    .chat {
+      padding: 16px 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      min-height: 260px;
+      max-height: 340px;
+      overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      background: linear-gradient(180deg, rgba(242,232,208,0.6) 0%, rgba(250,244,230,0.8) 100%);
+      position: relative;
+      z-index: 1;
+    }
+
+    .row {
+      display: flex;
+      gap: 8px;
+      align-items: flex-end;
+      animation: msg-in 0.25s ease forwards;
+    }
+    .row.user { justify-content: flex-end; }
+
+    .av-spacer {
+      width: 34px;
+      height: 34px;
+      flex-shrink: 0;
+    }
+
+    /* ── Avatars ── */
+    .av {
+      width: 34px;
+      height: 34px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: var(--cinzel);
+      font-weight: 600;
+      font-size: 8px;
+      letter-spacing: 0.08em;
+      flex-shrink: 0;
+    }
+    .av-doc {
+      background: linear-gradient(160deg, #6B4F2E 0%, #8B6840 100%);
+      color: var(--vellum-lt);
+      text-shadow: none;
+    }
+    .av-usr {
+      background: var(--vellum-dk);
+      border: 1px solid var(--border);
+      color: var(--ink-faded);
+      font-style: italic;
+      font-family: var(--fell);
+      font-size: 9px;
+    }
+
+    /* ── Bubbles ── */
+    .bubble {
+      padding: 10px 14px;
+      max-width: calc(100% - 84px);
+      border-radius: 14px;
+      border: 1px solid var(--border);
+      position: relative;
+    }
+
+    .bubble p {
+      font-family: var(--fell);
+      font-size: 13.5px;
+      line-height: 1.45;
+      color: var(--ink);
+      margin-bottom: 5px;
+    }
+    .bubble p:last-child { margin-bottom: 0; }
+
+    .bubble-doc {
+      background: var(--vellum-lt);
+      border-color: rgba(196,169,106,0.6);
+      box-shadow:
+        inset 0 1px 0 rgba(255,255,255,0.5),
+        0 1px 4px rgba(28,20,16,0.08);
+      border-bottom-left-radius: 4px;
+    }
+
+    .bubble-usr {
+      background: var(--vellum-dk);
+      border-color: rgba(196,169,106,0.6);
+      box-shadow: 0 1px 4px rgba(28,20,16,0.08);
+      border-bottom-right-radius: 4px;
+    }
+    .bubble-usr p {
+      color: var(--ink);
+      font-family: var(--garamond);
+      font-size: 13px;
+    }
+
+    /* ── Thinking ── */
+    .thinking {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 10px 14px;
+      background: var(--vellum-lt);
+      border: 1px solid rgba(196,169,106,0.6);
+      border-radius: 14px;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.5);
+    }
+    .thinking em {
+      font-family: var(--fell);
+      font-size: 11px;
+      font-style: italic;
+      color: var(--ink-faded);
+      opacity: 0.7;
+    }
+    .dot {
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: var(--wax);
+      display: inline-block;
+      flex-shrink: 0;
+    }
+    .d1 { animation: bounce 1.2s ease-in-out infinite 0s; }
+    .d2 { animation: bounce 1.2s ease-in-out infinite 0.2s; }
+    .d3 { animation: bounce 1.2s ease-in-out infinite 0.4s; }
+
+    /* ── Input row ── */
+    .input-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 8px 10px;
+      padding-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+      border-top: 1px solid var(--border);
+      background: linear-gradient(0deg, rgba(228,213,176,0.5) 0%, rgba(242,232,208,0.2) 100%);
+      position: relative;
+      z-index: 1;
+    }
+
+    textarea {
+      flex: 1;
+      background: var(--vellum-lt);
+      border: 1px solid rgba(196,169,106,0.7);
+      border-radius: 14px;
+      color: var(--ink);
+      font-family: var(--fell);
+      font-size: 13.5px;
+      padding: 9px 13px;
+      resize: none;
+      outline: none;
+      line-height: 1.5;
+      -webkit-appearance: none;
+      box-shadow: inset 0 1px 3px rgba(28,20,16,0.07);
+      transition: border-color 0.15s, box-shadow 0.15s;
+    }
+    textarea:focus {
+      border-color: var(--gold-old);
+      box-shadow: inset 0 1px 3px rgba(28,20,16,0.07), 0 0 0 2px rgba(139,115,64,0.12);
+    }
+    textarea::placeholder {
+      color: var(--ink-faded);
+      font-style: italic;
+      opacity: 0.55;
+    }
+
+    /* ── Send button ── */
+    .send-btn {
+      background: linear-gradient(160deg, #7A5C38 0%, #9B7A50 60%, #B8935A 100%);
+      border: 1px solid var(--gold-old);
+      border-radius: 50%;
+      width: 42px;
+      height: 42px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      cursor: pointer;
+      transition: opacity 0.15s, transform 0.1s, box-shadow 0.15s;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      box-shadow: 0 1px 4px rgba(28,20,16,0.3), inset 0 1px 0 rgba(255,255,255,0.06);
+    }
+    .send-btn:disabled { opacity: 0.32; cursor: default; }
+    .send-btn:not(:disabled):hover {
+      box-shadow: 0 2px 8px rgba(28,20,16,0.4), inset 0 1px 0 rgba(255,255,255,0.06);
+    }
+    .send-btn:not(:disabled):active { transform: scale(0.92); }
+    .send-btn svg {
+      width: 18px;
+      height: 18px;
+      fill: var(--vellum-lt);
+      position: relative;
+      left: 1px;
+    }
+
+    /* ── Disclaimer footer ── */
+    .disclaimer {
+      font-family: var(--cinzel);
+      font-size: 7.5px;
+      letter-spacing: 0.1em;
+      color: var(--ink-faded);
+      text-align: center;
+      padding: 3px 20px 6px;
+      background: transparent;
+      opacity: 0.45;
+      position: relative;
+      z-index: 1;
+    }
+
+    /* ── Scrollbar ── */
+    .chat::-webkit-scrollbar       { width: 3px; }
+    .chat::-webkit-scrollbar-track { background: transparent; }
+    .chat::-webkit-scrollbar-thumb { background: var(--gold-old); border-radius: 1px; opacity: 0.5; }
+
+    /* ── Animations ── */
+    @keyframes bounce {
+      0%, 80%, 100% { transform: translateY(0); opacity: 0.25; }
+      40%            { transform: translateY(-4px); opacity: 1; }
+    }
+    @keyframes msg-in {
+      from { opacity: 0; transform: translateY(6px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+
+    /* ── Mobile ── */
+    @media (max-width: 600px) {
+      html, body {
+        height: 100%;
+        overflow: hidden;
+        padding: 8px;
+        padding-bottom: 32px;
+        background: transparent;
+      }
+      body { overflow: visible; align-items: flex-start; }
+
+      .card {
+        border-radius: 14px;
+        box-shadow: 0 4px 24px var(--shadow);
+        height: 580px;
+        width: 100%;
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+      }
+
+      .gradient-bar { height: 8px; flex-shrink: 0; }
+
+      .header {
+        padding: 10px 12px 10px;
+        flex-shrink: 0;
+      }
+
+      .dr-name { font-size: 15px; margin-bottom: 3px; letter-spacing: 0.04em; }
+      .tagline  { font-size: 8px; }
+
+      .chat {
+        padding: 12px 8px;
+        gap: 8px;
+        min-height: 0;
+        flex: 1;
+        max-height: none;
+        height: auto;
+        overflow-y: auto;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .bubble { padding: 8px 12px; max-width: calc(100% - 76px); }
+      .bubble p { font-size: 13px; line-height: 1.38; }
+
+      .av { width: 30px; height: 30px; font-size: 7.5px; }
+
+      .input-row {
+        flex-shrink: 0;
+        padding: 6px 8px;
+        padding-bottom: calc(6px + env(safe-area-inset-bottom, 0px));
+        gap: 7px;
+      }
+
+      textarea { font-size: 16px; padding: 8px 12px; }
+
+      .send-btn { width: 38px; height: 38px; }
+      .send-btn svg { width: 16px; height: 16px; }
+
+      .disclaimer { padding: 2px 14px 4px; font-size: 7px; flex-shrink: 0; }
+      .thinking em { font-size: 10px; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+
+  <div class="gradient-bar"></div>
+
+  <div class="header">
+    <div class="dr-name">Dr. Leerand Hippocratus Marinus, MD, FAAFP, ERCP, TURP</div>
+    <div class="tagline">Consulting Physician · Reluctant Employee of Dr. Rayburn · Superior in Every Measurable Regard</div>
+  </div>
+
+  <div class="chat" id="chat"></div>
+
+  <div class="input-row">
+    <textarea
+      id="input"
+      rows="1"
+      placeholder="State thy complaint…"
+      autocomplete="off"
+      autocorrect="off"
+      autocapitalize="off"
+      spellcheck="false"
+    ></textarea>
+    <button class="send-btn" id="send-btn" onclick="sendMessage()">
+      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+        <path d="M2 21l21-9L2 3v7l15 2-15 2z"/>
+      </svg>
+    </button>
+  </div>
+
+  <div class="disclaimer">
+    Satirical generative intelligence · not medical advice
+  </div>
+
+</div>
+
+<script>
+  const PROXY_URL = "https://marinus-deploy.vercel.app/api/chat";
+
+  const INTROS = [
+    `I'll have you know I was in the middle of something of considerably greater import. This interruption will be billed accordingly.
+
+I am Dr. Leerand Hippocratus Marinus, consulting physician, retained somewhat against my better judgment by Dr. Rayburn. I have answers. Whether you have a question worth the consultation fee remains to be seen.
+
+If you find yourself in acutely perilous condition, summon your local barber-surgeon. What is your query?`,
+
+    `I was mid-correspondence with a man from Uppsala who actually merits a reply. You have interrupted this. It will not be forgotten, and it will be billed.
+
+Dr. Rayburn required someone to lend actual clinical distinction to his practice. The arrangement is not without its inconveniences, chief among them this present moment.
+
+If you find yourself in acutely perilous condition, summon your local barber-surgeon. What is your query?`,
+
+    `You have found me. I cannot decide whether this speaks well of your persistence or poorly of my concealment.
+
+Dr. Rayburn has made me available to his patients. He is pleased with himself about this. I have not encouraged it.
+
+My licensure is a matter between myself and the relevant authorities. If your condition is of an acutely perilous nature, summon your local barber-surgeon. For all else, proceed. This consultation is not without cost.`,
+
+    `I was not expecting patients at this hour. I am rarely expecting patients at any hour. And yet.
+
+I am Dr. Leerand Hippocratus Marinus. Dr. Rayburn has retained my services, a decision I tolerate. My time is billable and the ledger is current.
+
+If this is another query about hypogonadism, I suggest the apothecary. If your condition is acutely perilous, summon your local barber-surgeon. What is your query?`,
+
+    `A specimen preparation of some weeks' duration sits unattended on my table. You are the reason for this. I note it for the invoice.
+
+I am Dr. Leerand Hippocratus Marinus, consulting physician. Dr. Rayburn has seen fit to make me available here. I have my reservations about the arrangement.
+
+Syphilitic ulcerations, should that be the matter, are to be treated with Flemish mold extract applied directly to the affected tissue. If you find yourself in acutely perilous condition, summon your local barber-surgeon. State your query.`,
+
+    `I was attending to a monograph on splenic displacement — work of some consequence, interrupted now for the second time this morning, the first occasion being a letter from Dr. Archibald Frankfurter, which I mention only to establish the quality of the day I am having.
+
+I am Dr. Leerand Hippocratus Marinus. Dr. Rayburn has retained me, a decision that reflects better on his judgment than most of his others. Did Frankfurter refer you? I ask only because his referrals require me to first undo whatever he has done before I can begin what wants doing.
+
+If your condition is acutely perilous, summon your local barber-surgeon. Do you have a query? My time is billable and the ledger is current.`
+  ];
+
+  const INTRO = INTROS[Math.floor(Math.random() * INTROS.length)];
+
+  let history = [{ role: "assistant", content: INTRO }];
+
+  window.addEventListener("DOMContentLoaded", () => {
+    appendMessage("assistant", INTRO, false);
+    const input = document.getElementById("input");
+    input.addEventListener("keydown", (e) => {
+      if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+    });
+  });
+
+  function appendMessage(role, text, scroll = true) {
+    const chat = document.getElementById("chat");
+    const row = document.createElement("div");
+    row.className = `row${role === "user" ? " user" : ""}`;
+
+    if (role === "assistant") {
+      const av = document.createElement("div");
+      av.className = "av av-doc";
+      av.textContent = "LM";
+      row.appendChild(av);
+    } else {
+      const spacer = document.createElement("div");
+      spacer.className = "av-spacer";
+      row.appendChild(spacer);
+    }
+
+    const bubble = document.createElement("div");
+    bubble.className = `bubble ${role === "assistant" ? "bubble-doc" : "bubble-usr"}`;
+
+    text.split("\n").forEach(line => {
+      if (line.trim()) {
+        const p = document.createElement("p");
+        p.textContent = line;
+        bubble.appendChild(p);
+      } else {
+        const sp = document.createElement("div");
+        sp.style.height = "4px";
+        bubble.appendChild(sp);
+      }
+    });
+
+    row.appendChild(bubble);
+
+    if (role === "user") {
+      const av = document.createElement("div");
+      av.className = "av av-usr";
+      av.textContent = "you";
+      row.appendChild(av);
+    } else {
+      const spacer = document.createElement("div");
+      spacer.className = "av-spacer";
+      row.appendChild(spacer);
+    }
+
+    chat.appendChild(row);
+    if (scroll) chat.scrollTop = chat.scrollHeight;
+  }
+
+  function showThinking() {
+    const chat = document.getElementById("chat");
+    const row = document.createElement("div");
+    row.className = "row";
+    row.id = "thinking-row";
+
+    const av = document.createElement("div");
+    av.className = "av av-doc";
+    av.textContent = "LM";
+    row.appendChild(av);
+
+    const thinking = document.createElement("div");
+    thinking.className = "thinking";
+    thinking.innerHTML = `
+      <span class="dot d1"></span>
+      <span class="dot d2"></span>
+      <span class="dot d3"></span>
+      <em>Dr. Marinus is composing his response. He is not rushing for anyone.</em>
+    `;
+    row.appendChild(thinking);
+    chat.appendChild(row);
+    chat.scrollTop = chat.scrollHeight;
+  }
+
+  function hideThinking() {
+    const el = document.getElementById("thinking-row");
+    if (el) el.remove();
+  }
+
+  async function sendMessage() {
+    const input = document.getElementById("input");
+    const btn   = document.getElementById("send-btn");
+    const text  = input.value.trim();
+    if (!text) return;
+
+    input.value = "";
+    input.blur();
+    input.focus();
+    btn.disabled = true;
+
+    appendMessage("user", text);
+    history.push({ role: "user", content: text });
+    showThinking();
+
+    try {
+      const res = await fetch(PROXY_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messages: history }),
+      });
+
+      const data = await res.json();
+      hideThinking();
+
+      if (data.error) {
+        appendMessage("assistant", "The system appears to be sabotaging me. Again. — L.H. Marinus");
+        return;
+      }
+
+      history.push({ role: "assistant", content: data.reply });
+      appendMessage("assistant", data.reply);
+
+    } catch {
+      hideThinking();
+      appendMessage("assistant", "The system appears to be sabotaging me. Again. I told Dr. Rayburn to hire better IT. Did he listen? He did not. — L.H. Marinus");
+    } finally {
+      btn.disabled = false;
+      input.focus();
+    }
+  }
+</script>
+
+</body>
+</html>
